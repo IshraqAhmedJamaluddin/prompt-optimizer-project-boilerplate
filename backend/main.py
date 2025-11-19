@@ -307,7 +307,7 @@ ENABLE_TEMPERATURE_CONTROL = (
     True  # TODO: Lesson 3.4 - Activate temperature control for feedback style
 )
 ENABLE_PROMPT_CHAINING = (
-    False  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
+    True  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
 )
 ENABLE_CONTEXT_WINDOW_MANAGEMENT = (
     False  # TODO: Lesson 3.8 - Activate context window management with summarization
