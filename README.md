@@ -116,11 +116,11 @@ Once the backend is running, you can access:
 
 ### Module 1 - Setup & Foundation (Lesson 1.7: Project Kickoff)
 
-- [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise
+- [x] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise
   - **Activate**: Update the `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` with a detailed system prompt (500+ tokens)
-- [ ] Enhance conversation history to maintain context across messages
+- [x] Enhance conversation history to maintain context across messages
   - **Activate**: Change `ENABLE_CONVERSATION_HISTORY = False` to `True` in `backend/main.py`
-- [ ] Add token counting to track usage and prevent context window overflow
+- [x] Add token counting to track usage and prevent context window overflow
   - **Activate**: Change `ENABLE_TOKEN_COUNTING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ### Module 2 - Frameworks & Best Practices (Lesson 2.8: Project Extension)
