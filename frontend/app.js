@@ -11,7 +11,7 @@ const ENABLE_TEMPERATURE_CONTROL = true; // Set to true to enable temperature sl
 const ENABLE_PROMPT_CHAINING = true; // Set to true to enable prompt chaining workflow (Lesson 3.6)
 const ENABLE_CONTEXT_WINDOW_MANAGEMENT = true; // Set to true to enable context window management (Lesson 3.8)
 const ENABLE_CONVERSATION_EXPORT = false; // Set to true to enable conversation export (Lesson 4.7)
-const ENABLE_PROMPT_LIBRARY = false; // Set to true to enable prompt library features (Lesson 4.6)
+const ENABLE_PROMPT_LIBRARY = true; // Set to true to enable prompt library features (Lesson 4.6)
 const ENABLE_FEEDBACK_EVALUATION = true; // Set to true to enable feedback evaluation (Lesson 4.1)
 
 // Chat state
