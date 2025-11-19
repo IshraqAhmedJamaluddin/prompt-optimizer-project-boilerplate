@@ -125,17 +125,17 @@ Once the backend is running, you can access:
 
 ### Module 2 - Frameworks & Best Practices (Lesson 2.8: Project Extension)
 
-- [ ] Enhance system prompt with role prompting: define Prompt Critic as expert consultant
+- [x] Enhance system prompt with role prompting: define Prompt Critic as expert consultant
   - **Activate**: Update `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` to include role prompting sections
-- [ ] Add few-shot examples to system prompt showing good vs bad prompt feedback
+- [x] Add few-shot examples to system prompt showing good vs bad prompt feedback
   - **Activate**: Add few-shot examples section to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
-- [ ] Implement structured feedback format: use markdown, lists, and tables in responses
+- [x] Implement structured feedback format: use markdown, lists, and tables in responses
   - **Activate**: Add structured output formatting instructions to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
-- [ ] Add chain-of-thought reasoning: Prompt Critic explains step-by-step analysis
+- [x] Add chain-of-thought reasoning: Prompt Critic explains step-by-step analysis
   - **Activate**: Add chain-of-thought reasoning instructions to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
-- [ ] Create prompt quality scoring: analyze clarity, completeness, and effectiveness
+- [x] Create prompt quality scoring: analyze clarity, completeness, and effectiveness
   - **Activate**: Add quality scoring framework to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
-- [ ] Add iterative refinement: track prompt versions through conversation
+- [x] Add iterative refinement: track prompt versions through conversation
   - **Activate**: Change `ENABLE_PROMPT_VERSION_TRACKING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ### Module 3 - Advanced Techniques (Lesson 3.8: Project Extension)
