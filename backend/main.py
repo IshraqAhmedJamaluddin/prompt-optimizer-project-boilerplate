@@ -164,10 +164,14 @@ async def get_prompt_critic_response(
             # Add system prompt as first user message with "System: " prefix
             chat_history.append({"role": "user", "parts": [f"System: {prompt_to_use}"]})
             # Add model acknowledgment
-            chat_history.append({
-                "role": "model",
-                "parts": ["Understood. I'll follow these instructions and help users optimize their prompts using prompt engineering techniques."]
-            })
+            chat_history.append(
+                {
+                    "role": "model",
+                    "parts": [
+                        "Understood. I'll follow these instructions and help users optimize their prompts using prompt engineering techniques."
+                    ],
+                }
+            )
 
         # Convert conversation history (handle system messages separately - they're already processed above)
         for msg in messages:

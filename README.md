@@ -114,15 +114,39 @@ Once the backend is running, you can access:
 
 ## Next Steps
 
-This is the starter code with a simple chat interface. Throughout the course, you'll extend this to build a **Prompt Helper Chat** with a **Prompt Critic** character that helps users optimize their prompts using prompt engineering techniques.
+### Module 1 - Setup & Foundation
 
-The complete solution includes:
-- **Prompt Critic Character**: An expert AI assistant with a comprehensive system prompt
-- **Educational Guidance**: Helps users improve prompts using course techniques
-- **Chat Interface**: Interactive conversation for iterative prompt refinement
-- **Constructive Feedback**: Provides specific, actionable suggestions with examples
+- [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise (Lesson 1.1-1.6)
+- [ ] Enhance conversation history to maintain context across messages (Lesson 1.3)
+- [ ] Add token counting to track usage and prevent context window overflow (Lesson 1.4, 1.7)
+- [ ] Configure additional LLM providers (DeepSeek, OpenRouter) as alternatives to Gemini (Lesson 1.7)
+- [ ] Add error handling for API failures and rate limits (Lesson 1.7)
 
-See the `solutions` branch for the complete implementation.
+### Module 2 - Frameworks & Best Practices
+
+- [ ] Enhance system prompt with role prompting: define Prompt Critic as expert consultant (Lesson 2.3)
+- [ ] Add few-shot examples to system prompt showing good vs bad prompt feedback (Lesson 2.2)
+- [ ] Implement structured feedback format: use markdown, lists, and tables in responses (Lesson 2.4)
+- [ ] Add chain-of-thought reasoning: Prompt Critic explains step-by-step analysis (Lesson 2.6)
+- [ ] Create prompt quality scoring: analyze clarity, completeness, and effectiveness (Lesson 2.8)
+- [ ] Add iterative refinement: track prompt versions through conversation (Lesson 2.5)
+
+### Module 3 - Advanced Techniques
+
+- [ ] Refine system prompt structure: separate identity, expertise, and behavior sections (Lesson 3.1)
+- [ ] Add structured output option: Prompt Critic can return JSON-formatted suggestions (Lesson 3.2)
+- [ ] Implement temperature control: allow users to adjust feedback style (creative vs precise) (Lesson 3.4)
+- [ ] Add reasoning strategies: Prompt Critic uses step-by-step or ReAct for complex analysis (Lesson 3.5)
+- [ ] Create prompt chaining: multi-step optimization workflow (analyze → suggest → refine → final) (Lesson 3.6)
+- [ ] Implement context window management: summarize old messages when conversation gets long (Lesson 3.8)
+
+### Module 4 - Business Applications & Optimization
+
+- [ ] Add defensive prompting: protect system prompt from injection attacks (Lesson 4.2)
+- [ ] Implement meta-prompting: create endpoint to optimize Prompt Critic's own system prompt (Lesson 4.3)
+- [ ] Add conversation export: save chat history as markdown or JSON (Lesson 4.7)
+- [ ] Create prompt library: save and organize optimized prompts with tags/categories (Lesson 4.6)
+- [ ] Add feedback evaluation: track which suggestions users find most helpful (Lesson 4.1)
 
 ## Development Notes
 
