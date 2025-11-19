@@ -145,22 +145,13 @@ async def get_prompt_critic_response(user_message: str, messages: List[dict], sy
     Get response from Gemini API with Prompt Critic system prompt.
     Uses the comprehensive system prompt to maintain character consistency.
     
-    TODO: Implement this function to:
-    1. Check if GEMINI_API_KEY is configured
-    2. Initialize the Gemini model (use 'gemini-2.5-flash')
-    3. Convert the messages list to Gemini's chat history format
-    4. Handle the system prompt appropriately (Gemini doesn't have a separate system role)
-    5. Use start_chat() with history and send_message() for the current message
-    6. Return the response text
-    7. Handle errors appropriately
+    TODO: Enhance this function to properly use the system prompt:
+    1. When system_prompt is provided and not a TODO placeholder, add it to the chat history
+    2. The system prompt should be added as the first user message with "System: " prefix
+    3. Add a model response acknowledging the system prompt (see solutions branch)
+    4. This will give the character its personality and expertise
     
-    Hints:
-    - Gemini uses {"role": "user", "parts": [...]} and {"role": "model", "parts": [...]} format
-    - The system prompt should be added as the first user message with "System: " prefix
-    - Use model.start_chat(history=chat_history) to create a chat session
-    - Use chat.send_message(user_message) to send the current message
-    
-    See the solutions branch for a complete implementation.
+    Currently works with basic chat (just user messages) - students will add system prompt integration.
     """
     if not GEMINI_API_KEY:
         raise HTTPException(
@@ -168,12 +159,46 @@ async def get_prompt_critic_response(user_message: str, messages: List[dict], sy
             detail="GEMINI_API_KEY not configured. Please set it in your .env file. Get a free key from https://aistudio.google.com/app/apikey"
         )
     
-    # TODO: Implement the Gemini API call here
-    # Replace this with actual implementation
-    raise HTTPException(
-        status_code=501,
-        detail="TODO: Implement get_prompt_critic_response function. See the code comments for guidance."
-    )
+    try:
+        # Initialize Gemini model
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Build conversation history for Gemini (excluding system messages for now)
+        chat_history = []
+        
+        # TODO: Add system prompt handling here
+        # If system_prompt is provided and not a TODO placeholder:
+        # 1. Add it as first user message: {"role": "user", "parts": [f"System: {system_prompt}"]}
+        # 2. Add model acknowledgment: {"role": "model", "parts": ["Understood. I'll follow these instructions..."]}
+        # 3. This establishes the Prompt Critic character before the conversation starts
+        
+        # Convert conversation history (excluding system messages for now)
+        for msg in messages:
+            if msg["role"] == "system":
+                # TODO: Handle system messages by adding them to chat_history with proper format
+                # Skip system messages for now - students will implement this
+                continue
+            elif msg["role"] == "user":
+                chat_history.append({"role": "user", "parts": [msg["content"]]})
+            elif msg["role"] == "assistant":
+                chat_history.append({"role": "model", "parts": [msg["content"]]})
+        
+        # Start chat session with history (excluding current user message)
+        chat = model.start_chat(history=chat_history)
+        
+        # Send current user message
+        response = chat.send_message(user_message)
+        return response.text
+        
+    except Exception as e:
+        error_msg = str(e)
+        if "not found" in error_msg.lower() or "404" in error_msg:
+            try:
+                available_models = [m.name for m in genai.list_models()]
+                error_msg += f"\n\nAvailable models: {', '.join(available_models[:10])}"
+            except:
+                pass
+        raise HTTPException(status_code=500, detail=f"Error calling Gemini API: {error_msg}")
 
 
 if __name__ == "__main__":
