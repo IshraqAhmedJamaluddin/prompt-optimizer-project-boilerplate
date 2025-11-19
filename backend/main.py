@@ -69,6 +69,45 @@ rate_limit_tracker: Dict[str, List[float]] = defaultdict(list)
 RATE_LIMIT_REQUESTS = 60  # requests per minute
 RATE_LIMIT_WINDOW = 60  # seconds
 
+# TODO: Feature flags for Module 1 - Setup & Foundation
+# Students should activate these features as they progress through Module 1
+ENABLE_CONVERSATION_HISTORY = (
+    True  # Lesson 1.3 - Already active for basic functionality
+)
+ENABLE_TOKEN_COUNTING = (
+    False  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
+)
+ENABLE_ADDITIONAL_PROVIDERS = (
+    False  # TODO: Lesson 1.7 - Activate DeepSeek and OpenRouter support
+)
+ENABLE_ENHANCED_ERROR_HANDLING = False  # TODO: Lesson 1.7 - Activate enhanced error handling for API failures and rate limits
+
+# TODO: Feature flags for Module 2 - Frameworks & Best Practices
+ENABLE_PROMPT_VERSION_TRACKING = False  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
+
+# TODO: Feature flags for Module 3 - Advanced Techniques
+ENABLE_JSON_OUTPUT = False  # TODO: Lesson 3.2 - Activate structured JSON output option
+ENABLE_TEMPERATURE_CONTROL = (
+    False  # TODO: Lesson 3.4 - Activate temperature control for feedback style
+)
+ENABLE_PROMPT_CHAINING = (
+    False  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
+)
+ENABLE_CONTEXT_WINDOW_MANAGEMENT = (
+    False  # TODO: Lesson 3.8 - Activate context window management with summarization
+)
+
+# TODO: Feature flags for Module 4 - Business Applications & Optimization
+ENABLE_DEFENSIVE_PROMPTING = False  # TODO: Lesson 4.2 - Activate defensive prompting (sanitization is already active, but can be enhanced)
+ENABLE_META_PROMPTING = False  # TODO: Lesson 4.3 - Activate meta-prompting endpoint
+ENABLE_CONVERSATION_EXPORT = (
+    False  # TODO: Lesson 4.7 - Activate conversation export functionality
+)
+ENABLE_PROMPT_LIBRARY = False  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
+ENABLE_FEEDBACK_EVALUATION = (
+    False  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
+)
+
 
 # Enums
 class LLMProvider(str, Enum):
@@ -415,11 +454,23 @@ async def get_llm_response(
     user_message: str,
 ) -> Tuple[str, int]:
     """Get response from selected LLM provider"""
+    # TODO: Lesson 1.7 - Additional LLM providers (DeepSeek, OpenRouter)
+    # Activate by setting ENABLE_ADDITIONAL_PROVIDERS = True
     if provider == LLMProvider.GEMINI:
         return await call_gemini(messages, system_prompt, temperature, user_message)
     elif provider == LLMProvider.DEEPSEEK:
+        if not ENABLE_ADDITIONAL_PROVIDERS:
+            raise HTTPException(
+                status_code=400,
+                detail="DeepSeek provider not enabled. Set ENABLE_ADDITIONAL_PROVIDERS = True to activate. (Lesson 1.7)",
+            )
         return await call_deepseek(messages, system_prompt, temperature, user_message)
     elif provider == LLMProvider.OPENROUTER:
+        if not ENABLE_ADDITIONAL_PROVIDERS:
+            raise HTTPException(
+                status_code=400,
+                detail="OpenRouter provider not enabled. Set ENABLE_ADDITIONAL_PROVIDERS = True to activate. (Lesson 1.7)",
+            )
         return await call_openrouter(messages, system_prompt, temperature, user_message)
     else:
         raise HTTPException(status_code=400, detail=f"Unknown provider: {provider}")
@@ -469,8 +520,10 @@ async def chat(request: ChatRequest):
             detail=f"Rate limit exceeded. Maximum {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds.",
         )
 
-    # Sanitize input (defensive prompting)
+    # TODO: Lesson 4.2 - Defensive prompting (basic sanitization always active)
+    # Enhanced defensive prompting can be activated by setting ENABLE_DEFENSIVE_PROMPTING = True
     user_message = sanitize_input(request.message.strip())
+    # Additional defensive measures can be added here when ENABLE_DEFENSIVE_PROMPTING is True
 
     if not user_message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
@@ -482,31 +535,51 @@ async def chat(request: ChatRequest):
     session_id = request.session_id or "default"
     if session_id not in conversation_sessions:
         conversation_sessions[session_id] = []
-    session_messages = conversation_sessions[session_id]
-    messages.extend(session_messages[-20:])  # Last 20 messages
 
-    # Add provided conversation history
+    # TODO: Lesson 1.3 - Enhanced conversation history
+    # Basic history is always active for core functionality
+    # Enhanced tracking maintains context across messages
+    session_messages = conversation_sessions[session_id]
+    if ENABLE_CONVERSATION_HISTORY:
+        messages.extend(session_messages[-20:])  # Last 20 messages
+    else:
+        # Basic: only use provided conversation history
+        pass
+
+    # Add provided conversation history (always active)
     if request.conversation_history:
         for msg in request.conversation_history[-10:]:
             messages.append({"role": msg.role, "content": msg.content})
 
-    # Context window management: summarize if too long
-    summary = summarize_conversation(messages)
-    if summary:
-        messages = messages[-5:]  # Keep last 5 messages
-        messages.insert(0, {"role": "system", "content": summary})
+    # TODO: Lesson 3.8 - Context window management: summarize if too long
+    # Activate by setting ENABLE_CONTEXT_WINDOW_MANAGEMENT = True
+    if ENABLE_CONTEXT_WINDOW_MANAGEMENT:
+        summary = summarize_conversation(messages)
+        if summary:
+            messages = messages[-5:]  # Keep last 5 messages
+            messages.insert(0, {"role": "system", "content": summary})
 
-    # Apply reasoning strategy
+    # Apply reasoning strategy (always active - this is prompt-based)
     enhanced_system_prompt = apply_reasoning_strategy(
         PROMPT_CRITIC_SYSTEM_PROMPT, request.reasoning_strategy, user_message
     )
 
-    # Track prompt version
-    prompt_version = len(prompt_versions.get(session_id, [])) + 1
+    # TODO: Lesson 3.4 - Temperature control for feedback style
+    # Activate by setting ENABLE_TEMPERATURE_CONTROL = True
+    # If disabled, use default temperature
+    if not ENABLE_TEMPERATURE_CONTROL:
+        request.temperature = 0.7  # Default temperature
+
+    # TODO: Lesson 2.5 - Track prompt version for iterative refinement
+    # Activate by setting ENABLE_PROMPT_VERSION_TRACKING = True
+    prompt_version = None
+    if ENABLE_PROMPT_VERSION_TRACKING:
+        prompt_version = len(prompt_versions.get(session_id, [])) + 1
 
     try:
-        # Prompt chaining workflow
-        if request.enable_chaining:
+        # TODO: Lesson 3.6 - Prompt chaining workflow
+        # Activate by setting ENABLE_PROMPT_CHAINING = True
+        if request.enable_chaining and ENABLE_PROMPT_CHAINING:
             response_text, metadata = await prompt_chaining_workflow(
                 user_message,
                 messages,
@@ -529,17 +602,20 @@ async def chat(request: ChatRequest):
         # Calculate quality score
         quality_score = calculate_quality_score(user_message)
 
-        # Store prompt version
-        prompt_versions[session_id].append(
-            {
-                "version": prompt_version,
-                "prompt": user_message,
-                "timestamp": datetime.now().isoformat(),
-                "quality_score": quality_score,
-            }
-        )
+        # TODO: Lesson 2.5 - Store prompt version for iterative refinement
+        if ENABLE_PROMPT_VERSION_TRACKING and prompt_version:
+            prompt_versions[session_id].append(
+                {
+                    "version": prompt_version,
+                    "prompt": user_message,
+                    "timestamp": datetime.now().isoformat(),
+                    "quality_score": quality_score,
+                }
+            )
 
-        # Update session
+        # Update session (always active for basic functionality)
+        # TODO: Lesson 1.3 - Enhanced conversation history tracking
+        # When ENABLE_CONVERSATION_HISTORY is True, maintains full context across messages
         conversation_sessions[session_id].append(
             {"role": "user", "content": user_message}
         )
@@ -547,8 +623,9 @@ async def chat(request: ChatRequest):
             {"role": "assistant", "content": response_text}
         )
 
-        # Handle JSON output format
-        if request.output_format == OutputFormat.JSON:
+        # TODO: Lesson 3.2 - Handle JSON output format
+        # Activate by setting ENABLE_JSON_OUTPUT = True
+        if request.output_format == OutputFormat.JSON and ENABLE_JSON_OUTPUT:
             try:
                 # Try to parse as JSON, if fails return as text
                 json_data = json.loads(response_text)
@@ -564,22 +641,29 @@ async def chat(request: ChatRequest):
                     indent=2,
                 )
 
-        # Estimate remaining tokens (assuming 32k context window)
-        max_tokens = 32000
-        total_tokens = (
-            sum(estimate_tokens(msg.get("content", "")) for msg in messages)
-            + tokens_used
-        )
-        tokens_remaining = max(0, max_tokens - total_tokens)
+        # TODO: Lesson 1.4, 1.7 - Token counting and context window tracking
+        # Activate by setting ENABLE_TOKEN_COUNTING = True
+        tokens_remaining = None
+        if not ENABLE_TOKEN_COUNTING:
+            # Don't track tokens if feature is disabled
+            tokens_used = None
+        else:
+            # Estimate remaining tokens (assuming 32k context window)
+            max_tokens = 32000
+            total_tokens = (
+                sum(estimate_tokens(msg.get("content", "")) for msg in messages)
+                + tokens_used
+            )
+            tokens_remaining = max(0, max_tokens - total_tokens)
 
         return ChatResponse(
             response=response_text,
             timestamp=datetime.now().isoformat(),
             character_name="Prompt Critic",
-            tokens_used=tokens_used,
+            tokens_used=tokens_used if ENABLE_TOKEN_COUNTING else None,
             tokens_remaining=tokens_remaining,
             quality_score=quality_score,
-            prompt_version=prompt_version,
+            prompt_version=prompt_version if ENABLE_PROMPT_VERSION_TRACKING else None,
             metadata=metadata,
         )
 
@@ -587,19 +671,28 @@ async def chat(request: ChatRequest):
         raise
     except Exception as e:
         error_msg = str(e)
-        # Enhanced error handling
-        if "rate limit" in error_msg.lower() or "429" in error_msg:
-            raise HTTPException(
-                status_code=429, detail=f"API rate limit exceeded: {error_msg}"
-            )
-        elif "401" in error_msg or "unauthorized" in error_msg.lower():
-            raise HTTPException(
-                status_code=401,
-                detail=f"API authentication failed. Check your API key: {error_msg}",
-            )
-        elif "timeout" in error_msg.lower():
-            raise HTTPException(status_code=504, detail=f"Request timeout: {error_msg}")
+        # TODO: Lesson 1.7 - Enhanced error handling for API failures and rate limits
+        # Activate by setting ENABLE_ENHANCED_ERROR_HANDLING = True
+        if ENABLE_ENHANCED_ERROR_HANDLING:
+            if "rate limit" in error_msg.lower() or "429" in error_msg:
+                raise HTTPException(
+                    status_code=429, detail=f"API rate limit exceeded: {error_msg}"
+                )
+            elif "401" in error_msg or "unauthorized" in error_msg.lower():
+                raise HTTPException(
+                    status_code=401,
+                    detail=f"API authentication failed. Check your API key: {error_msg}",
+                )
+            elif "timeout" in error_msg.lower():
+                raise HTTPException(
+                    status_code=504, detail=f"Request timeout: {error_msg}"
+                )
+            else:
+                raise HTTPException(
+                    status_code=500, detail=f"Error processing request: {error_msg}"
+                )
         else:
+            # Basic error handling (always active)
             raise HTTPException(
                 status_code=500, detail=f"Error processing request: {error_msg}"
             )
@@ -610,7 +703,15 @@ async def chat(request: ChatRequest):
 
 @app.get("/api/sessions/{session_id}/versions")
 async def get_prompt_versions(session_id: str):
-    """Get all prompt versions for a session"""
+    """
+    TODO: Lesson 2.5 - Get all prompt versions for a session
+    Activate by setting ENABLE_PROMPT_VERSION_TRACKING = True
+    """
+    if not ENABLE_PROMPT_VERSION_TRACKING:
+        raise HTTPException(
+            status_code=403,
+            detail="Prompt version tracking not enabled. Set ENABLE_PROMPT_VERSION_TRACKING = True to activate. (Lesson 2.5)",
+        )
     versions = prompt_versions.get(session_id, [])
     return {"session_id": session_id, "versions": versions}
 
@@ -630,9 +731,15 @@ async def meta_prompt_optimize(
     ),
 ):
     """
-    Meta-prompting endpoint: Optimize Prompt Critic's own system prompt.
+    TODO: Lesson 4.3 - Meta-prompting endpoint: Optimize Prompt Critic's own system prompt.
+    Activate by setting ENABLE_META_PROMPTING = True
     Students can use this to iteratively improve the system prompt.
     """
+    if not ENABLE_META_PROMPTING:
+        raise HTTPException(
+            status_code=403,
+            detail="Meta-prompting not enabled. Set ENABLE_META_PROMPTING = True to activate. (Lesson 4.3)",
+        )
     if not current_prompt:
         current_prompt = PROMPT_CRITIC_SYSTEM_PROMPT
 
@@ -669,7 +776,15 @@ Provide the optimized prompt with a brief explanation of improvements."""
 async def export_conversation(
     session_id: str, format: str = Query("markdown", regex="^(markdown|json)$")
 ):
-    """Export conversation history as markdown or JSON"""
+    """
+    TODO: Lesson 4.7 - Export conversation history as markdown or JSON
+    Activate by setting ENABLE_CONVERSATION_EXPORT = True
+    """
+    if not ENABLE_CONVERSATION_EXPORT:
+        raise HTTPException(
+            status_code=403,
+            detail="Conversation export not enabled. Set ENABLE_CONVERSATION_EXPORT = True to activate. (Lesson 4.7)",
+        )
     history = conversation_sessions.get(session_id, [])
     versions = prompt_versions.get(session_id, [])
 
@@ -702,7 +817,15 @@ async def export_conversation(
 
 @app.post("/api/library")
 async def save_to_library(entry: PromptLibraryEntry):
-    """Save a prompt to the library"""
+    """
+    TODO: Lesson 4.6 - Save a prompt to the library
+    Activate by setting ENABLE_PROMPT_LIBRARY = True
+    """
+    if not ENABLE_PROMPT_LIBRARY:
+        raise HTTPException(
+            status_code=403,
+            detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
+        )
     prompt_library[entry.id] = {
         "id": entry.id,
         "prompt": entry.prompt,
@@ -717,7 +840,15 @@ async def save_to_library(entry: PromptLibraryEntry):
 
 @app.get("/api/library")
 async def get_library(category: Optional[str] = None, tag: Optional[str] = None):
-    """Get prompts from library with optional filtering"""
+    """
+    TODO: Lesson 4.6 - Get prompts from library with optional filtering
+    Activate by setting ENABLE_PROMPT_LIBRARY = True
+    """
+    if not ENABLE_PROMPT_LIBRARY:
+        raise HTTPException(
+            status_code=403,
+            detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
+        )
     entries = list(prompt_library.values())
 
     if category:
@@ -730,7 +861,15 @@ async def get_library(category: Optional[str] = None, tag: Optional[str] = None)
 
 @app.get("/api/library/{entry_id}")
 async def get_library_entry(entry_id: str):
-    """Get a specific library entry"""
+    """
+    TODO: Lesson 4.6 - Get a specific library entry
+    Activate by setting ENABLE_PROMPT_LIBRARY = True
+    """
+    if not ENABLE_PROMPT_LIBRARY:
+        raise HTTPException(
+            status_code=403,
+            detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
+        )
     if entry_id not in prompt_library:
         raise HTTPException(status_code=404, detail="Entry not found")
     return prompt_library[entry_id]
@@ -738,7 +877,15 @@ async def get_library_entry(entry_id: str):
 
 @app.delete("/api/library/{entry_id}")
 async def delete_library_entry(entry_id: str):
-    """Delete a library entry"""
+    """
+    TODO: Lesson 4.6 - Delete a library entry
+    Activate by setting ENABLE_PROMPT_LIBRARY = True
+    """
+    if not ENABLE_PROMPT_LIBRARY:
+        raise HTTPException(
+            status_code=403,
+            detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
+        )
     if entry_id not in prompt_library:
         raise HTTPException(status_code=404, detail="Entry not found")
     del prompt_library[entry_id]
@@ -747,7 +894,15 @@ async def delete_library_entry(entry_id: str):
 
 @app.post("/api/feedback")
 async def submit_feedback(feedback: FeedbackEvaluation):
-    """Submit feedback evaluation for suggestions"""
+    """
+    TODO: Lesson 4.1 - Submit feedback evaluation for suggestions
+    Activate by setting ENABLE_FEEDBACK_EVALUATION = True
+    """
+    if not ENABLE_FEEDBACK_EVALUATION:
+        raise HTTPException(
+            status_code=403,
+            detail="Feedback evaluation not enabled. Set ENABLE_FEEDBACK_EVALUATION = True to activate. (Lesson 4.1)",
+        )
     feedback_evaluations.append(
         {
             "suggestion_id": feedback.suggestion_id,
@@ -761,7 +916,15 @@ async def submit_feedback(feedback: FeedbackEvaluation):
 
 @app.get("/api/feedback/stats")
 async def get_feedback_stats():
-    """Get feedback evaluation statistics"""
+    """
+    TODO: Lesson 4.1 - Get feedback evaluation statistics
+    Activate by setting ENABLE_FEEDBACK_EVALUATION = True
+    """
+    if not ENABLE_FEEDBACK_EVALUATION:
+        raise HTTPException(
+            status_code=403,
+            detail="Feedback evaluation not enabled. Set ENABLE_FEEDBACK_EVALUATION = True to activate. (Lesson 4.1)",
+        )
     if not feedback_evaluations:
         return {"total": 0, "helpful": 0, "not_helpful": 0, "helpful_rate": 0.0}
 
