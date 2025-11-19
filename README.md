@@ -1,6 +1,6 @@
-# Prompt Optimizer Tool
+# Prompt Helper Chat - Starter Code
 
-A web application for testing, comparing, and optimizing prompts across multiple LLMs (Claude, ChatGPT, Gemini, DeepSeek, etc.).
+A simple chat application using Gemini API. This is the starter code for building a Prompt Helper Chat with a Prompt Critic character that helps optimize prompts using techniques from the Prompt Engineering Foundations course.
 
 ## Project Structure
 
@@ -13,12 +13,21 @@ prompt-optimizer-tool/
 │   ├── index.html       # Main HTML file
 │   ├── styles.css       # Custom styles
 │   └── app.js           # Frontend JavaScript
+├── .env.example         # Environment variables template
+├── .gitignore
 └── README.md
 ```
 
 ## Setup Instructions
 
-### Backend Setup
+### 1. Get Your Free Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy your API key
+
+### 2. Backend Setup
 
 1. Navigate to the backend directory:
 
@@ -39,7 +48,20 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Run the FastAPI server:
+4. Create a `.env` file (copy from `.env.example`):
+
+```bash
+# From backend directory
+cp ../.env.example .env
+```
+
+5. Edit `.env` and add your Gemini API key:
+
+```
+GEMINI_API_KEY=your-actual-api-key-here
+```
+
+6. Run the FastAPI server:
 
 ```bash
 python main.py
@@ -47,7 +69,7 @@ python main.py
 
 The API will be available at `http://localhost:8000`
 
-### Frontend Setup
+### 3. Frontend Setup
 
 1. Open `frontend/index.html` in a web browser, or use a local server:
 
@@ -69,122 +91,41 @@ Once the backend is running, you can access:
 
 ## Features
 
-### Core Functionality
+### Current (Starter Code)
 
-- **Prompt Library Management**: Create, edit, delete, and organize prompts with categories and tags
-- **Multi-LLM Testing**: Test prompts across multiple LLM providers (Claude, ChatGPT, Gemini, DeepSeek)
-- **Quality Scoring**: Automated scoring for clarity, completeness, and effectiveness
-- **Hallucination Detection**: Check for factual inaccuracies in outputs
-- **A/B Testing**: Compare multiple prompt variations systematically
-- **Comparison Tools**: Side-by-side comparison of outputs from different prompts or providers
-- **Temperature Testing**: Test prompts across different temperature settings
-- **Version Control**: Track prompt iterations and improvements
+- **Simple Chat Interface**: Basic chat with Gemini API
+- **Message History**: Stores last 20 messages in memory
+- **Error Handling**: Basic error messages for API failures
 
 ## API Endpoints
 
-### Prompts
+### Chat
 
-- `GET /api/prompts` - Get all prompts (optional `?category=writing`)
-- `GET /api/prompts/{id}` - Get a specific prompt
-- `POST /api/prompts` - Create a new prompt
-- `PUT /api/prompts/{id}` - Update a prompt (creates new version)
-- `DELETE /api/prompts/{id}` - Delete a prompt
+- `POST /api/chat` - Send a message and get a response
 
-### LLM Providers
+  ```json
+  {
+    "message": "Hello, how are you?"
+  }
+  ```
 
-- `GET /api/providers` - Get all configured LLM providers
-- `POST /api/providers` - Add a new LLM provider
-
-### Testing
-
-- `GET /api/tests` - Get all tests (optional `?prompt_id={id}`)
-- `GET /api/tests/{id}` - Get a specific test
-- `POST /api/tests` - Run a new prompt test
-
-### Comparisons
-
-- `GET /api/comparisons` - Get all comparisons
-- `POST /api/comparisons` - Create a new comparison
-
-### Quality Scores
-
-- `GET /api/quality-scores/{test_id}` - Get quality score for a test
-- `POST /api/quality-scores` - Add a quality score
-
-### Hallucination Detection
-
-- `GET /api/hallucination-checks/{test_id}` - Get hallucination check
-- `POST /api/hallucination-checks` - Add hallucination check result
-
-### A/B Testing
-
-- `GET /api/ab-tests` - Get all A/B tests
-- `GET /api/ab-tests/{id}` - Get a specific A/B test
-- `POST /api/ab-tests` - Create a new A/B test
+- `GET /api/history` - Get chat history
+- `DELETE /api/history` - Clear chat history
 
 ## Next Steps
 
-### Module 1 - Setup & Foundation
+This is the starter code with a simple chat interface. Throughout the course, you'll extend this to build a **Prompt Helper Chat** with a **Prompt Critic** character that helps users optimize their prompts using prompt engineering techniques.
 
-- [ ] Configure free API access (DeepSeek, OpenRouter, etc.) (Lesson 1.7)
-- [ ] Implement actual LLM API calls in testing endpoint (Lesson 1.7)
-- [ ] Add response time tracking (Lesson 1.7)
-- [ ] Implement token counting (Lesson 1.7)
+The complete solution includes:
+- **Prompt Critic Character**: An expert AI assistant with a comprehensive system prompt
+- **Educational Guidance**: Helps users improve prompts using course techniques
+- **Chat Interface**: Interactive conversation for iterative prompt refinement
+- **Constructive Feedback**: Provides specific, actionable suggestions with examples
 
-### Module 2 - Quality Scoring & Detection
-
-- [ ] Implement automated clarity scoring (Lesson 2.8)
-- [ ] Implement completeness scoring (Lesson 2.8)
-- [ ] Implement effectiveness scoring (Lesson 2.8)
-- [ ] Add few-shot example management (Lesson 2.2)
-- [ ] Implement hallucination detection algorithms (Lesson 2.7)
-
-### Module 3 - Advanced Testing Features
-
-- [ ] Add structured output parsing (JSON validation) (Lesson 3.2)
-- [ ] Implement temperature range testing (Lesson 3.4)
-- [ ] Add prompt chaining functionality (Lesson 3.6)
-- [ ] Implement context window management tracking (Lesson 3.8)
-- [ ] Add iteration history logging (Lesson 3.8)
-
-### Module 4 - Optimization & Meta-Prompting
-
-- [ ] Implement A/B testing automation (Lesson 4.1)
-- [ ] Add defensive prompt templates (injection prevention) (Lesson 4.2)
-- [ ] Implement meta-prompt generation (Lesson 4.3)
-- [ ] Add cost optimization recommendations (Lesson 4.7)
-- [ ] Implement export functionality (CSV, JSON, Markdown) (Lesson 4.7)
-
-### General Improvements
-
-- [ ] Add database persistence (SQLite, PostgreSQL)
-- [ ] Implement authentication and user management
-- [ ] Add export/import functionality
-- [ ] Implement batch processing
-- [ ] Add comprehensive error handling
-- [ ] Add logging and monitoring
-
-## Configuration
-
-### Setting Up LLM Providers
-
-To configure LLM providers, you'll need to add them via the API:
-
-```python
-# Example: Add DeepSeek provider
-POST /api/providers
-{
-    "id": "deepseek",
-    "name": "DeepSeek",
-    "api_key": "your-api-key",
-    "endpoint": "https://api.deepseek.com/v1/chat/completions",
-    "model": "deepseek-chat",
-    "temperature": 0.7
-}
-```
+See the `solutions` branch for the complete implementation.
 
 ## Development Notes
 
-- Currently uses in-memory storage. For production, integrate with a database.
-- LLM API integration is a placeholder - implement actual API calls based on provider documentation.
-- Quality scoring and hallucination detection algorithms need to be implemented.
+- Currently uses in-memory storage for chat history
+- The `.env` file should be in the `backend/` directory (created via `cp ../.env.example .env` from the backend directory)
+- The `.env` file is gitignored - never commit your API key!
