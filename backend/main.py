@@ -304,7 +304,7 @@ ENABLE_PROMPT_VERSION_TRACKING = True  # TODO: Lesson 2.5 - Activate iterative r
 # TODO: Feature flags for Module 3 - Advanced Techniques
 ENABLE_JSON_OUTPUT = True  # TODO: Lesson 3.2 - Activate structured JSON output option
 ENABLE_TEMPERATURE_CONTROL = (
-    False  # TODO: Lesson 3.4 - Activate temperature control for feedback style
+    True  # TODO: Lesson 3.4 - Activate temperature control for feedback style
 )
 ENABLE_PROMPT_CHAINING = (
     False  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
