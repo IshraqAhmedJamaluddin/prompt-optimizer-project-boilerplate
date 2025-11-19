@@ -6,7 +6,7 @@ const API_BASE_URL = "http://localhost:8000/api";
 // Change `False` to `True` to activate each feature
 const ENABLE_TOKEN_COUNTING = true; // Set to true to show token usage (Lesson 1.4, 1.7)
 const ENABLE_PROMPT_VERSION_TRACKING = true; // Set to true to show prompt versions (Lesson 2.5)
-const ENABLE_JSON_OUTPUT = false; // Set to true to enable JSON output format option (Lesson 3.2)
+const ENABLE_JSON_OUTPUT = true; // Set to true to enable JSON output format option (Lesson 3.2)
 const ENABLE_TEMPERATURE_CONTROL = false; // Set to true to enable temperature slider (Lesson 3.4)
 const ENABLE_PROMPT_CHAINING = false; // Set to true to enable prompt chaining workflow (Lesson 3.6)
 const ENABLE_CONVERSATION_EXPORT = false; // Set to true to enable conversation export (Lesson 4.7)
