@@ -43,10 +43,11 @@ app.add_middleware(
 # 4. Include guidelines for providing constructive feedback
 # 5. Reference specific course modules and techniques
 # 6. Set behavioral boundaries and response formatting
-# 
+#
 # The prompt should be 500+ tokens and demonstrate advanced prompt engineering techniques.
 # Look at the solutions branch for a complete example.
 PROMPT_CRITIC_SYSTEM_PROMPT = ""
+
 
 # Data Models
 class Message(BaseModel):
@@ -83,9 +84,15 @@ async def get_character_info():
         "name": "Prompt Critic",
         "role": "Expert Prompt Engineering Consultant",
         "avatar": "💡",
-        "personality_traits": ["knowledgeable", "constructive", "encouraging", "detail-oriented", "educational"],
+        "personality_traits": [
+            "knowledgeable",
+            "constructive",
+            "encouraging",
+            "detail-oriented",
+            "educational",
+        ],
         "tone_of_voice": "clear, educational, constructive, friendly but professional",
-        "system_prompt": PROMPT_CRITIC_SYSTEM_PROMPT
+        "system_prompt": PROMPT_CRITIC_SYSTEM_PROMPT,
     }
 
 
@@ -94,100 +101,92 @@ async def chat(request: ChatRequest):
     """
     Chat endpoint with Prompt Critic persona.
     Uses system prompt and conversation history for context-aware responses.
-    
-    TODO: Ensure the system prompt is properly used in the LLM call.
     """
     user_message = request.message.strip()
-    
+
     if not user_message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
-    
+
     # Build conversation context
-    messages = [
-        {"role": "system", "content": PROMPT_CRITIC_SYSTEM_PROMPT}
-    ]
-    
+    messages = [{"role": "system", "content": PROMPT_CRITIC_SYSTEM_PROMPT}]
+
     # Add conversation history if provided
     if request.conversation_history:
         for msg in request.conversation_history[-10:]:  # Last 10 messages for context
-            messages.append({
-                "role": msg.role,
-                "content": msg.content
-            })
-    
+            messages.append({"role": msg.role, "content": msg.content})
+
     # Add current user message
-    messages.append({
-        "role": "user",
-        "content": user_message
-    })
-    
-    # TODO: Implement the get_prompt_critic_response function
-    # This function should:
-    # 1. Use the Gemini API to get a response
-    # 2. Include the system prompt in the conversation
-    # 3. Handle conversation history properly (Gemini uses a specific format)
-    # 4. Return the response text
-    # 
-    # See the solutions branch for a complete implementation.
-    response_text = await get_prompt_critic_response(user_message, messages, PROMPT_CRITIC_SYSTEM_PROMPT)
-    
+    messages.append({"role": "user", "content": user_message})
+
+    # Get response from LLM with system prompt and conversation history
+    response_text = await get_prompt_critic_response(
+        user_message, messages, PROMPT_CRITIC_SYSTEM_PROMPT
+    )
+
     return ChatResponse(
         response=response_text,
         timestamp=datetime.now().isoformat(),
-        character_name="Prompt Critic"
+        character_name="Prompt Critic",
     )
 
 
-async def get_prompt_critic_response(user_message: str, messages: List[dict], system_prompt: str = None) -> str:
+async def get_prompt_critic_response(
+    user_message: str, messages: List[dict], system_prompt: str = None
+) -> str:
     """
     Get response from Gemini API with Prompt Critic system prompt.
     Uses the comprehensive system prompt to maintain character consistency.
-    
-    TODO: Enhance this function to properly use the system prompt:
-    1. When system_prompt is provided and not a TODO placeholder, add it to the chat history
-    2. The system prompt should be added as the first user message with "System: " prefix
-    3. Add a model response acknowledging the system prompt (see solutions branch)
-    4. This will give the character its personality and expertise
-    
-    Currently works with basic chat (just user messages) - students will add system prompt integration.
     """
     if not GEMINI_API_KEY:
         raise HTTPException(
             status_code=500,
-            detail="GEMINI_API_KEY not configured. Please set it in your .env file. Get a free key from https://aistudio.google.com/app/apikey"
+            detail="GEMINI_API_KEY not configured. Please set it in your .env file. Get a free key from https://aistudio.google.com/app/apikey",
         )
-    
+
     try:
         # Initialize Gemini model
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
-        # Build conversation history for Gemini (excluding system messages for now)
+        model = genai.GenerativeModel("gemini-2.5-flash")
+
+        # Build conversation history for Gemini
         chat_history = []
-        
-        # TODO: Add system prompt handling here
-        # If system_prompt is provided and not a TODO placeholder:
-        # 1. Add it as first user message: {"role": "user", "parts": [f"System: {system_prompt}"]}
-        # 2. Add model acknowledgment: {"role": "model", "parts": ["Understood. I'll follow these instructions..."]}
-        # 3. This establishes the Prompt Critic character before the conversation starts
-        
-        # Convert conversation history (excluding system messages for now)
+
+        # Handle system prompt - if provided and not empty, add it as first message
+        prompt_to_use = system_prompt
+        if not prompt_to_use:
+            # Extract system prompt from messages if not provided directly
+            for msg in messages:
+                if msg["role"] == "system":
+                    prompt_to_use = msg["content"]
+                    break
+
+        # Add system prompt to chat history if it exists
+        if prompt_to_use and prompt_to_use.strip():
+            # Add system prompt as first user message with "System: " prefix
+            chat_history.append({"role": "user", "parts": [f"System: {prompt_to_use}"]})
+            # Add model acknowledgment
+            chat_history.append({
+                "role": "model",
+                "parts": ["Understood. I'll follow these instructions and help users optimize their prompts using prompt engineering techniques."]
+            })
+
+        # Convert conversation history (handle system messages separately - they're already processed above)
         for msg in messages:
             if msg["role"] == "system":
-                # TODO: Handle system messages by adding them to chat_history with proper format
-                # Skip system messages for now - students will implement this
+                # System messages are handled above via system_prompt parameter
+                # Skip them here to avoid duplication
                 continue
             elif msg["role"] == "user":
                 chat_history.append({"role": "user", "parts": [msg["content"]]})
             elif msg["role"] == "assistant":
                 chat_history.append({"role": "model", "parts": [msg["content"]]})
-        
+
         # Start chat session with history (excluding current user message)
         chat = model.start_chat(history=chat_history)
-        
+
         # Send current user message
         response = chat.send_message(user_message)
         return response.text
-        
+
     except Exception as e:
         error_msg = str(e)
         if "not found" in error_msg.lower() or "404" in error_msg:
@@ -196,9 +195,12 @@ async def get_prompt_critic_response(user_message: str, messages: List[dict], sy
                 error_msg += f"\n\nAvailable models: {', '.join(available_models[:10])}"
             except:
                 pass
-        raise HTTPException(status_code=500, detail=f"Error calling Gemini API: {error_msg}")
+        raise HTTPException(
+            status_code=500, detail=f"Error calling Gemini API: {error_msg}"
+        )
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
