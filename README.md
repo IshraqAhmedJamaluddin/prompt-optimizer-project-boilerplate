@@ -114,47 +114,55 @@ Once the backend is running, you can access:
 
 ## Next Steps
 
-### Module 1 - Setup & Foundation
+### Module 1 - Setup & Foundation (Lesson 1.7: Project Kickoff)
 
-- [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise (Lesson 1.6)
-- [ ] Enhance conversation history to maintain context across messages (Lesson 1.3)
+- [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise
+  - **Activate**: Update the `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` with a detailed system prompt (500+ tokens)
+- [ ] Enhance conversation history to maintain context across messages
   - **Activate**: Change `ENABLE_CONVERSATION_HISTORY = False` to `True` in `backend/main.py`
-- [ ] Add token counting to track usage and prevent context window overflow (Lesson 1.4, 1.7)
+- [ ] Add token counting to track usage and prevent context window overflow
   - **Activate**: Change `ENABLE_TOKEN_COUNTING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
-### Module 2 - Frameworks & Best Practices
+### Module 2 - Frameworks & Best Practices (Lesson 2.8: Project Extension)
 
-- [ ] Enhance system prompt with role prompting: define Prompt Critic as expert consultant (Lesson 2.3)
-- [ ] Add few-shot examples to system prompt showing good vs bad prompt feedback (Lesson 2.2)
-- [ ] Implement structured feedback format: use markdown, lists, and tables in responses (Lesson 2.4)
-- [ ] Add chain-of-thought reasoning: Prompt Critic explains step-by-step analysis (Lesson 2.6)
-- [ ] Create prompt quality scoring: analyze clarity, completeness, and effectiveness (Lesson 2.8)
-- [ ] Add iterative refinement: track prompt versions through conversation (Lesson 2.5)
+- [ ] Enhance system prompt with role prompting: define Prompt Critic as expert consultant
+  - **Activate**: Update `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` to include role prompting sections
+- [ ] Add few-shot examples to system prompt showing good vs bad prompt feedback
+  - **Activate**: Add few-shot examples section to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
+- [ ] Implement structured feedback format: use markdown, lists, and tables in responses
+  - **Activate**: Add structured output formatting instructions to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
+- [ ] Add chain-of-thought reasoning: Prompt Critic explains step-by-step analysis
+  - **Activate**: Add chain-of-thought reasoning instructions to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
+- [ ] Create prompt quality scoring: analyze clarity, completeness, and effectiveness
+  - **Activate**: Add quality scoring framework to `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py`
+- [ ] Add iterative refinement: track prompt versions through conversation
   - **Activate**: Change `ENABLE_PROMPT_VERSION_TRACKING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
-### Module 3 - Advanced Techniques
+### Module 3 - Advanced Techniques (Lesson 3.8: Project Extension)
 
-- [ ] Refine system prompt structure: separate identity, expertise, and behavior sections (Lesson 3.1)
-- [ ] Add structured output option: Prompt Critic can return JSON-formatted suggestions (Lesson 3.2)
+- [ ] Refine system prompt structure: separate identity, expertise, and behavior sections
+  - **Activate**: Reorganize `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` into clear sections
+- [ ] Add structured output option: Prompt Critic can return JSON-formatted suggestions
   - **Activate**: Change `ENABLE_JSON_OUTPUT = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Implement temperature control: allow users to adjust feedback style (creative vs precise) (Lesson 3.4)
+- [ ] Implement temperature control: allow users to adjust feedback style (creative vs precise)
   - **Activate**: Change `ENABLE_TEMPERATURE_CONTROL = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Add reasoning strategies: Prompt Critic uses step-by-step or ReAct for complex analysis (Lesson 3.5)
-- [ ] Create prompt chaining: multi-step optimization workflow (analyze → suggest → refine → final) (Lesson 3.6)
+- [ ] Add reasoning strategies: Prompt Critic uses step-by-step or ReAct for complex analysis
+  - **Activate**: Update `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` to include reasoning strategy instructions
+- [ ] Create prompt chaining: multi-step optimization workflow (analyze → suggest → refine → final)
   - **Activate**: Change `ENABLE_PROMPT_CHAINING = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Implement context window management: summarize old messages when conversation gets long (Lesson 3.8)
+- [ ] Implement context window management: summarize old messages when conversation gets long
   - **Activate**: Change `ENABLE_CONTEXT_WINDOW_MANAGEMENT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
-### Module 4 - Business Applications & Optimization
+### Module 4 - Business Applications & Optimization (Lesson 4.7: Project Extension)
 
-- [ ] Add defensive prompting: protect system prompt from injection attacks (Lesson 4.2)
+- [ ] Add defensive prompting: protect system prompt from injection attacks
   - **Activate**: Change `ENABLE_DEFENSIVE_PROMPTING = False` to `True` in `backend/main.py` (basic sanitization is always active)
-- [ ] Add conversation export: save chat history as markdown or JSON (Lesson 4.7)
-  - **Activate**: Change `ENABLE_CONVERSATION_EXPORT = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Create prompt library: save and organize optimized prompts with tags/categories using SQLite (Lesson 4.6)
-  - **Activate**: Change `ENABLE_PROMPT_LIBRARY = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Add feedback evaluation: track which suggestions users find most helpful (Lesson 4.1)
+- [ ] Add feedback evaluation: track which suggestions users find most helpful
   - **Activate**: Change `ENABLE_FEEDBACK_EVALUATION = False` to `True` in both `backend/main.py` and `frontend/app.js`
+- [ ] Create prompt library: save and organize optimized prompts with tags/categories using SQLite
+  - **Activate**: Change `ENABLE_PROMPT_LIBRARY = False` to `True` in both `backend/main.py` and `frontend/app.js`
+- [ ] Add conversation export: save chat history as markdown or JSON
+  - **Activate**: Change `ENABLE_CONVERSATION_EXPORT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ## Suggested Features (Optional Enhancements)
 
