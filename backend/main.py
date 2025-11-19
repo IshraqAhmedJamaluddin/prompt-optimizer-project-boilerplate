@@ -15,6 +15,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
+import aiosqlite
 import google.generativeai as genai
 import httpx
 from dotenv import load_dotenv
@@ -35,6 +36,13 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 app = FastAPI(title="Prompt Helper Chat API", version="2.0.0")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup"""
+    await init_db()
+
 
 # CORS middleware for frontend communication
 app.add_middleware(
@@ -61,8 +69,10 @@ PROMPT_CRITIC_SYSTEM_PROMPT = ""
 # In-memory storage (in production, use a database)
 conversation_sessions: Dict[str, List[Dict]] = {}
 prompt_versions: Dict[str, List[Dict]] = defaultdict(list)
-prompt_library: Dict[str, Dict] = {}
 feedback_evaluations: List[Dict] = []
+
+# SQLite database path
+DB_PATH = "prompt_library.db"
 
 # Rate limiting tracking
 rate_limit_tracker: Dict[str, List[float]] = defaultdict(list)
@@ -75,37 +85,41 @@ ENABLE_CONVERSATION_HISTORY = (
     True  # Lesson 1.3 - Already active for basic functionality
 )
 ENABLE_TOKEN_COUNTING = (
-    False  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
+    True  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
 )
 ENABLE_ADDITIONAL_PROVIDERS = (
-    False  # TODO: Lesson 1.7 - Activate DeepSeek and OpenRouter support
+    True  # TODO: Lesson 1.7 - Activate DeepSeek and OpenRouter support
 )
-ENABLE_ENHANCED_ERROR_HANDLING = False  # TODO: Lesson 1.7 - Activate enhanced error handling for API failures and rate limits
+ENABLE_ENHANCED_ERROR_HANDLING = True  # TODO: Lesson 1.7 - Activate enhanced error handling for API failures and rate limits
 
 # TODO: Feature flags for Module 2 - Frameworks & Best Practices
-ENABLE_PROMPT_VERSION_TRACKING = False  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
+ENABLE_PROMPT_VERSION_TRACKING = (
+    True  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
+)
 
 # TODO: Feature flags for Module 3 - Advanced Techniques
-ENABLE_JSON_OUTPUT = False  # TODO: Lesson 3.2 - Activate structured JSON output option
+ENABLE_JSON_OUTPUT = True  # TODO: Lesson 3.2 - Activate structured JSON output option
 ENABLE_TEMPERATURE_CONTROL = (
-    False  # TODO: Lesson 3.4 - Activate temperature control for feedback style
+    True  # TODO: Lesson 3.4 - Activate temperature control for feedback style
 )
 ENABLE_PROMPT_CHAINING = (
-    False  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
+    True  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
 )
 ENABLE_CONTEXT_WINDOW_MANAGEMENT = (
-    False  # TODO: Lesson 3.8 - Activate context window management with summarization
+    True  # TODO: Lesson 3.8 - Activate context window management with summarization
 )
 
 # TODO: Feature flags for Module 4 - Business Applications & Optimization
-ENABLE_DEFENSIVE_PROMPTING = False  # TODO: Lesson 4.2 - Activate defensive prompting (sanitization is already active, but can be enhanced)
-ENABLE_META_PROMPTING = False  # TODO: Lesson 4.3 - Activate meta-prompting endpoint
+ENABLE_DEFENSIVE_PROMPTING = True  # TODO: Lesson 4.2 - Activate defensive prompting (sanitization is already active, but can be enhanced)
+ENABLE_META_PROMPTING = True  # TODO: Lesson 4.3 - Activate meta-prompting endpoint
 ENABLE_CONVERSATION_EXPORT = (
-    False  # TODO: Lesson 4.7 - Activate conversation export functionality
+    True  # TODO: Lesson 4.7 - Activate conversation export functionality
 )
-ENABLE_PROMPT_LIBRARY = False  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
+ENABLE_PROMPT_LIBRARY = (
+    True  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
+)
 ENABLE_FEEDBACK_EVALUATION = (
-    False  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
+    True  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
 )
 
 
@@ -137,7 +151,6 @@ class Message(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     conversation_history: Optional[List[Message]] = []
-    provider: Optional[LLMProvider] = LLMProvider.GEMINI
     temperature: Optional[float] = Field(default=0.7, ge=0.0, le=2.0)
     output_format: Optional[OutputFormat] = OutputFormat.TEXT
     reasoning_strategy: Optional[ReasoningStrategy] = ReasoningStrategy.DIRECT
@@ -248,6 +261,31 @@ def summarize_conversation(messages: List[Dict], max_tokens: int = 1000) -> str:
         summary = f"[Previous conversation: {len(messages)-2} messages about prompt optimization]"
         return summary
     return ""
+
+
+# Database Functions
+async def init_db():
+    """Initialize SQLite database for prompt library"""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS prompt_library (
+                id TEXT PRIMARY KEY,
+                prompt TEXT NOT NULL,
+                optimized_prompt TEXT NOT NULL,
+                tags TEXT,  -- JSON array stored as text
+                category TEXT,
+                timestamp TEXT NOT NULL,
+                quality_score TEXT  -- JSON object stored as text
+            )
+        """
+        )
+        await db.commit()
+
+
+async def get_db():
+    """Get database connection"""
+    return await aiosqlite.connect(DB_PATH)
 
 
 async def call_gemini(
@@ -405,7 +443,6 @@ async def prompt_chaining_workflow(
     user_message: str,
     messages: List[Dict],
     system_prompt: str,
-    provider: LLMProvider,
     temperature: float,
 ) -> Tuple[str, Dict]:
     """Multi-step prompt optimization workflow"""
@@ -413,25 +450,25 @@ async def prompt_chaining_workflow(
     analyze_prompt = f"{system_prompt}\n\nAnalyze this prompt and identify areas for improvement. Be specific about what's missing or unclear."
     analyze_msg = [{"role": "user", "content": user_message}]
     analysis, _ = await get_llm_response(
-        analyze_msg, analyze_prompt, provider, temperature, user_message
+        analyze_msg, analyze_prompt, LLMProvider.GEMINI, temperature, user_message
     )
 
     # Step 2: Suggest
     suggest_prompt = f"{system_prompt}\n\nBased on this analysis: {analysis}\n\nProvide specific, actionable suggestions for improvement."
     suggestions, _ = await get_llm_response(
-        analyze_msg, suggest_prompt, provider, temperature, user_message
+        analyze_msg, suggest_prompt, LLMProvider.GEMINI, temperature, user_message
     )
 
     # Step 3: Refine
     refine_prompt = f"{system_prompt}\n\nBased on these suggestions: {suggestions}\n\nCreate an optimized version of the original prompt."
     refined, _ = await get_llm_response(
-        analyze_msg, refine_prompt, provider, temperature, user_message
+        analyze_msg, refine_prompt, LLMProvider.GEMINI, temperature, user_message
     )
 
     # Step 4: Final
     final_prompt = f"{system_prompt}\n\nProvide a final, polished version of the optimized prompt with a brief explanation of the improvements."
     final, _ = await get_llm_response(
-        analyze_msg, final_prompt, provider, temperature, user_message
+        analyze_msg, final_prompt, LLMProvider.GEMINI, temperature, user_message
     )
 
     combined_response = f"## Analysis\n{analysis}\n\n## Suggestions\n{suggestions}\n\n## Optimized Prompt\n{refined}\n\n## Final Version\n{final}"
@@ -584,16 +621,15 @@ async def chat(request: ChatRequest):
                 user_message,
                 messages,
                 enhanced_system_prompt,
-                request.provider,
                 request.temperature,
             )
             tokens_used = estimate_tokens(response_text)
         else:
-            # Regular single-step response
+            # Regular single-step response (always use Gemini)
             response_text, tokens_used = await get_llm_response(
                 messages,
                 enhanced_system_prompt,
-                request.provider,
+                LLMProvider.GEMINI,
                 request.temperature,
                 user_message,
             )
@@ -826,16 +862,35 @@ async def save_to_library(entry: PromptLibraryEntry):
             status_code=403,
             detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
         )
-    prompt_library[entry.id] = {
-        "id": entry.id,
-        "prompt": entry.prompt,
-        "optimized_prompt": entry.optimized_prompt,
-        "tags": entry.tags,
-        "category": entry.category,
-        "timestamp": entry.timestamp,
-        "quality_score": entry.quality_score,
-    }
-    return {"status": "saved", "id": entry.id}
+
+    try:
+        # Initialize database if it doesn't exist
+        await init_db()
+
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute(
+                """
+                INSERT OR REPLACE INTO prompt_library 
+                (id, prompt, optimized_prompt, tags, category, timestamp, quality_score)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    entry.id,
+                    entry.prompt,
+                    entry.optimized_prompt,
+                    json.dumps(entry.tags),
+                    entry.category,
+                    entry.timestamp,
+                    json.dumps(entry.quality_score) if entry.quality_score else None,
+                ),
+            )
+            await db.commit()
+
+        return {"status": "saved", "id": entry.id}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error saving to library: {str(e)}"
+        )
 
 
 @app.get("/api/library")
@@ -849,14 +904,47 @@ async def get_library(category: Optional[str] = None, tag: Optional[str] = None)
             status_code=403,
             detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
         )
-    entries = list(prompt_library.values())
 
-    if category:
-        entries = [e for e in entries if e.get("category") == category]
-    if tag:
-        entries = [e for e in entries if tag in e.get("tags", [])]
+    try:
+        await init_db()
 
-    return {"entries": entries, "count": len(entries)}
+        query = "SELECT * FROM prompt_library WHERE 1=1"
+        params = []
+
+        if category:
+            query += " AND category = ?"
+            params.append(category)
+
+        if tag:
+            query += " AND tags LIKE ?"
+            params.append(f'%"{tag}"%')
+
+        query += " ORDER BY timestamp DESC"
+
+        async with aiosqlite.connect(DB_PATH) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                entries = []
+                for row in rows:
+                    entry_dict = {
+                        "id": row["id"],
+                        "prompt": row["prompt"],
+                        "optimized_prompt": row["optimized_prompt"],
+                        "tags": json.loads(row["tags"]) if row["tags"] else [],
+                        "category": row["category"],
+                        "timestamp": row["timestamp"],
+                        "quality_score": (
+                            json.loads(row["quality_score"])
+                            if row["quality_score"]
+                            else None
+                        ),
+                    }
+                    entries.append(entry_dict)
+
+        return {"entries": entries, "count": len(entries)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading library: {str(e)}")
 
 
 @app.get("/api/library/{entry_id}")
@@ -870,9 +958,36 @@ async def get_library_entry(entry_id: str):
             status_code=403,
             detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
         )
-    if entry_id not in prompt_library:
-        raise HTTPException(status_code=404, detail="Entry not found")
-    return prompt_library[entry_id]
+
+    try:
+        await init_db()
+
+        async with aiosqlite.connect(DB_PATH) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute(
+                "SELECT * FROM prompt_library WHERE id = ?", (entry_id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    raise HTTPException(status_code=404, detail="Entry not found")
+
+                return {
+                    "id": row["id"],
+                    "prompt": row["prompt"],
+                    "optimized_prompt": row["optimized_prompt"],
+                    "tags": json.loads(row["tags"]) if row["tags"] else [],
+                    "category": row["category"],
+                    "timestamp": row["timestamp"],
+                    "quality_score": (
+                        json.loads(row["quality_score"])
+                        if row["quality_score"]
+                        else None
+                    ),
+                }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading entry: {str(e)}")
 
 
 @app.delete("/api/library/{entry_id}")
@@ -886,10 +1001,23 @@ async def delete_library_entry(entry_id: str):
             status_code=403,
             detail="Prompt library not enabled. Set ENABLE_PROMPT_LIBRARY = True to activate. (Lesson 4.6)",
         )
-    if entry_id not in prompt_library:
-        raise HTTPException(status_code=404, detail="Entry not found")
-    del prompt_library[entry_id]
-    return {"status": "deleted", "id": entry_id}
+
+    try:
+        await init_db()
+
+        async with aiosqlite.connect(DB_PATH) as db:
+            cursor = await db.execute(
+                "DELETE FROM prompt_library WHERE id = ?", (entry_id,)
+            )
+            await db.commit()
+            if cursor.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Entry not found")
+
+        return {"status": "deleted", "id": entry_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting entry: {str(e)}")
 
 
 @app.post("/api/feedback")

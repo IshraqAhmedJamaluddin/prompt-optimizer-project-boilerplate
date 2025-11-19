@@ -119,7 +119,6 @@ Once the backend is running, you can access:
 - [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise (Lesson 1.6)
 - [ ] Enhance conversation history to maintain context across messages (Lesson 1.3)
 - [ ] Add token counting to track usage and prevent context window overflow (Lesson 1.4, 1.7)
-- [ ] Configure additional LLM providers (DeepSeek, OpenRouter) as alternatives to Gemini (Lesson 1.7)
 - [ ] Add error handling for API failures and rate limits (Lesson 1.7)
 
 ### Module 2 - Frameworks & Best Practices
@@ -145,8 +144,18 @@ Once the backend is running, you can access:
 - [ ] Add defensive prompting: protect system prompt from injection attacks (Lesson 4.2)
 - [ ] Implement meta-prompting: create endpoint to optimize Prompt Critic's own system prompt (Lesson 4.3)
 - [ ] Add conversation export: save chat history as markdown or JSON (Lesson 4.7)
-- [ ] Create prompt library: save and organize optimized prompts with tags/categories (Lesson 4.6)
+- [ ] Create prompt library: save and organize optimized prompts with tags/categories using SQLite (Lesson 4.6)
 - [ ] Add feedback evaluation: track which suggestions users find most helpful (Lesson 4.1)
+
+## Suggested Features (Optional Enhancements)
+
+These features can be added as extensions to the project:
+
+### LLM Provider Selection
+
+- Add UI controls to switch between different LLM providers (Gemini, DeepSeek, OpenRouter)
+- Implement provider-specific configuration and handling
+- Add provider comparison functionality
 
 ## Development Notes
 
