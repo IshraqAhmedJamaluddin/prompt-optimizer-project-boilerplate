@@ -333,7 +333,7 @@ ENABLE_CONVERSATION_EXPORT = (
 )
 ENABLE_PROMPT_LIBRARY = False  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
 ENABLE_FEEDBACK_EVALUATION = (
-    False  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
+    True  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
 )
 
 
