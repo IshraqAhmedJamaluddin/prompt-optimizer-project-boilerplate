@@ -46,9 +46,7 @@ app.add_middleware(
 # 
 # The prompt should be 500+ tokens and demonstrate advanced prompt engineering techniques.
 # Look at the solutions branch for a complete example.
-PROMPT_CRITIC_SYSTEM_PROMPT = """TODO: Implement the Prompt Critic system prompt here.
-This should be a comprehensive prompt that defines the character's personality, expertise, and behavior.
-Students will complete this as part of the course exercise."""
+PROMPT_CRITIC_SYSTEM_PROMPT = ""
 
 # Data Models
 class Message(BaseModel):
