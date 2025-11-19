@@ -132,7 +132,7 @@ RATE_LIMIT_WINDOW = 60  # seconds
 # Change `False` to `True` to activate each feature
 ENABLE_CONVERSATION_HISTORY = True  # TODO: Lesson 1.3 - Activate conversation history to maintain context across messages
 ENABLE_TOKEN_COUNTING = (
-    False  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
+    True  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
 )
 ENABLE_ADDITIONAL_PROVIDERS = (
     False  # TODO: Lesson 1.7 - Activate DeepSeek and OpenRouter support
