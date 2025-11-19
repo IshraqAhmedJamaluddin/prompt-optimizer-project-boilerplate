@@ -118,8 +118,9 @@ Once the backend is running, you can access:
 
 - [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise (Lesson 1.6)
 - [ ] Enhance conversation history to maintain context across messages (Lesson 1.3)
+  - **Activate**: Change `ENABLE_CONVERSATION_HISTORY = False` to `True` in `backend/main.py`
 - [ ] Add token counting to track usage and prevent context window overflow (Lesson 1.4, 1.7)
-- [ ] Add error handling for API failures and rate limits (Lesson 1.7)
+  - **Activate**: Change `ENABLE_TOKEN_COUNTING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ### Module 2 - Frameworks & Best Practices
 
@@ -129,23 +130,31 @@ Once the backend is running, you can access:
 - [ ] Add chain-of-thought reasoning: Prompt Critic explains step-by-step analysis (Lesson 2.6)
 - [ ] Create prompt quality scoring: analyze clarity, completeness, and effectiveness (Lesson 2.8)
 - [ ] Add iterative refinement: track prompt versions through conversation (Lesson 2.5)
+  - **Activate**: Change `ENABLE_PROMPT_VERSION_TRACKING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ### Module 3 - Advanced Techniques
 
 - [ ] Refine system prompt structure: separate identity, expertise, and behavior sections (Lesson 3.1)
 - [ ] Add structured output option: Prompt Critic can return JSON-formatted suggestions (Lesson 3.2)
+  - **Activate**: Change `ENABLE_JSON_OUTPUT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 - [ ] Implement temperature control: allow users to adjust feedback style (creative vs precise) (Lesson 3.4)
+  - **Activate**: Change `ENABLE_TEMPERATURE_CONTROL = False` to `True` in both `backend/main.py` and `frontend/app.js`
 - [ ] Add reasoning strategies: Prompt Critic uses step-by-step or ReAct for complex analysis (Lesson 3.5)
 - [ ] Create prompt chaining: multi-step optimization workflow (analyze → suggest → refine → final) (Lesson 3.6)
+  - **Activate**: Change `ENABLE_PROMPT_CHAINING = False` to `True` in both `backend/main.py` and `frontend/app.js`
 - [ ] Implement context window management: summarize old messages when conversation gets long (Lesson 3.8)
+  - **Activate**: Change `ENABLE_CONTEXT_WINDOW_MANAGEMENT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ### Module 4 - Business Applications & Optimization
 
 - [ ] Add defensive prompting: protect system prompt from injection attacks (Lesson 4.2)
-- [ ] Implement meta-prompting: create endpoint to optimize Prompt Critic's own system prompt (Lesson 4.3)
+  - **Activate**: Change `ENABLE_DEFENSIVE_PROMPTING = False` to `True` in `backend/main.py` (basic sanitization is always active)
 - [ ] Add conversation export: save chat history as markdown or JSON (Lesson 4.7)
+  - **Activate**: Change `ENABLE_CONVERSATION_EXPORT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 - [ ] Create prompt library: save and organize optimized prompts with tags/categories using SQLite (Lesson 4.6)
+  - **Activate**: Change `ENABLE_PROMPT_LIBRARY = False` to `True` in both `backend/main.py` and `frontend/app.js`
 - [ ] Add feedback evaluation: track which suggestions users find most helpful (Lesson 4.1)
+  - **Activate**: Change `ENABLE_FEEDBACK_EVALUATION = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ## Suggested Features (Optional Enhancements)
 
@@ -157,8 +166,20 @@ These features can be added as extensions to the project:
 - Implement provider-specific configuration and handling
 - Add provider comparison functionality
 
+## Feature Activation
+
+All code features are controlled by boolean flags. To activate any feature:
+
+1. **Backend features**: Edit `backend/main.py` and change the corresponding `ENABLE_*` flag from `False` to `True`
+2. **Frontend features**: Edit `frontend/app.js` and change the corresponding `ENABLE_*` flag from `False` to `True`
+3. **Restart the backend server** after making changes to `backend/main.py`
+4. **Refresh the browser** after making changes to `frontend/app.js`
+
+**Important**: Some features require both backend AND frontend flags to be enabled to work properly. The checklist items above indicate which files need to be updated for each feature.
+
 ## Development Notes
 
 - Currently uses in-memory storage for chat history
+- Prompt library uses SQLite database (`prompt_library.db`) - created automatically on first use
 - The `.env` file should be in the `backend/` directory (created via `cp ../.env.example .env` from the backend directory)
 - The `.env` file is gitignored - never commit your API key!

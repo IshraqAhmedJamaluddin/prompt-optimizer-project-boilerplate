@@ -81,45 +81,39 @@ RATE_LIMIT_WINDOW = 60  # seconds
 
 # TODO: Feature flags for Module 1 - Setup & Foundation
 # Students should activate these features as they progress through Module 1
-ENABLE_CONVERSATION_HISTORY = (
-    True  # Lesson 1.3 - Already active for basic functionality
-)
+# Change `False` to `True` to activate each feature
+ENABLE_CONVERSATION_HISTORY = False  # TODO: Lesson 1.3 - Activate conversation history to maintain context across messages
 ENABLE_TOKEN_COUNTING = (
-    True  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
+    False  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
 )
 ENABLE_ADDITIONAL_PROVIDERS = (
-    True  # TODO: Lesson 1.7 - Activate DeepSeek and OpenRouter support
+    False  # TODO: Lesson 1.7 - Activate DeepSeek and OpenRouter support
 )
-ENABLE_ENHANCED_ERROR_HANDLING = True  # TODO: Lesson 1.7 - Activate enhanced error handling for API failures and rate limits
 
 # TODO: Feature flags for Module 2 - Frameworks & Best Practices
-ENABLE_PROMPT_VERSION_TRACKING = (
-    True  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
-)
+ENABLE_PROMPT_VERSION_TRACKING = False  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
 
 # TODO: Feature flags for Module 3 - Advanced Techniques
-ENABLE_JSON_OUTPUT = True  # TODO: Lesson 3.2 - Activate structured JSON output option
+ENABLE_JSON_OUTPUT = False  # TODO: Lesson 3.2 - Activate structured JSON output option
 ENABLE_TEMPERATURE_CONTROL = (
-    True  # TODO: Lesson 3.4 - Activate temperature control for feedback style
+    False  # TODO: Lesson 3.4 - Activate temperature control for feedback style
 )
 ENABLE_PROMPT_CHAINING = (
-    True  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
+    False  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
 )
 ENABLE_CONTEXT_WINDOW_MANAGEMENT = (
-    True  # TODO: Lesson 3.8 - Activate context window management with summarization
+    False  # TODO: Lesson 3.8 - Activate context window management with summarization
 )
 
 # TODO: Feature flags for Module 4 - Business Applications & Optimization
-ENABLE_DEFENSIVE_PROMPTING = True  # TODO: Lesson 4.2 - Activate defensive prompting (sanitization is already active, but can be enhanced)
-ENABLE_META_PROMPTING = True  # TODO: Lesson 4.3 - Activate meta-prompting endpoint
+# Change `False` to `True` to activate each feature
+ENABLE_DEFENSIVE_PROMPTING = False  # TODO: Lesson 4.2 - Activate enhanced defensive prompting (basic sanitization is always active)
 ENABLE_CONVERSATION_EXPORT = (
-    True  # TODO: Lesson 4.7 - Activate conversation export functionality
+    False  # TODO: Lesson 4.7 - Activate conversation export functionality
 )
-ENABLE_PROMPT_LIBRARY = (
-    True  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
-)
+ENABLE_PROMPT_LIBRARY = False  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
 ENABLE_FEEDBACK_EVALUATION = (
-    True  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
+    False  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
 )
 
 
@@ -707,28 +701,19 @@ async def chat(request: ChatRequest):
         raise
     except Exception as e:
         error_msg = str(e)
-        # TODO: Lesson 1.7 - Enhanced error handling for API failures and rate limits
-        # Activate by setting ENABLE_ENHANCED_ERROR_HANDLING = True
-        if ENABLE_ENHANCED_ERROR_HANDLING:
-            if "rate limit" in error_msg.lower() or "429" in error_msg:
-                raise HTTPException(
-                    status_code=429, detail=f"API rate limit exceeded: {error_msg}"
-                )
-            elif "401" in error_msg or "unauthorized" in error_msg.lower():
-                raise HTTPException(
-                    status_code=401,
-                    detail=f"API authentication failed. Check your API key: {error_msg}",
-                )
-            elif "timeout" in error_msg.lower():
-                raise HTTPException(
-                    status_code=504, detail=f"Request timeout: {error_msg}"
-                )
-            else:
-                raise HTTPException(
-                    status_code=500, detail=f"Error processing request: {error_msg}"
-                )
+        # Error handling for API failures and rate limits (always active)
+        if "rate limit" in error_msg.lower() or "429" in error_msg:
+            raise HTTPException(
+                status_code=429, detail=f"API rate limit exceeded: {error_msg}"
+            )
+        elif "401" in error_msg or "unauthorized" in error_msg.lower():
+            raise HTTPException(
+                status_code=401,
+                detail=f"API authentication failed. Check your API key: {error_msg}",
+            )
+        elif "timeout" in error_msg.lower():
+            raise HTTPException(status_code=504, detail=f"Request timeout: {error_msg}")
         else:
-            # Basic error handling (always active)
             raise HTTPException(
                 status_code=500, detail=f"Error processing request: {error_msg}"
             )
@@ -757,55 +742,6 @@ async def get_conversation_history(session_id: str):
     """Get conversation history for a session"""
     history = conversation_sessions.get(session_id, [])
     return {"session_id": session_id, "history": history}
-
-
-@app.post("/api/meta-prompt")
-async def meta_prompt_optimize(
-    current_prompt: str = Query(..., description="Current system prompt to optimize"),
-    optimization_goal: str = Query(
-        "improve clarity and effectiveness", description="Goal for optimization"
-    ),
-):
-    """
-    TODO: Lesson 4.3 - Meta-prompting endpoint: Optimize Prompt Critic's own system prompt.
-    Activate by setting ENABLE_META_PROMPTING = True
-    Students can use this to iteratively improve the system prompt.
-    """
-    if not ENABLE_META_PROMPTING:
-        raise HTTPException(
-            status_code=403,
-            detail="Meta-prompting not enabled. Set ENABLE_META_PROMPTING = True to activate. (Lesson 4.3)",
-        )
-    if not current_prompt:
-        current_prompt = PROMPT_CRITIC_SYSTEM_PROMPT
-
-    meta_prompt = f"""You are an expert at optimizing system prompts for AI assistants.
-
-Current system prompt:
-{current_prompt}
-
-Optimization goal: {optimization_goal}
-
-Analyze the current prompt and provide an improved version that:
-1. Maintains the core identity and purpose
-2. Addresses the optimization goal
-3. Uses advanced prompt engineering techniques
-4. Is clear, structured, and effective
-
-Provide the optimized prompt with a brief explanation of improvements."""
-
-    try:
-        # Use Gemini for meta-prompting (or allow provider selection)
-        messages = [{"role": "user", "content": meta_prompt}]
-        optimized, _ = await call_gemini(messages, "", 0.7, meta_prompt)
-        return {
-            "original": current_prompt,
-            "optimized": optimized,
-            "goal": optimization_goal,
-            "timestamp": datetime.now().isoformat(),
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Meta-prompting error: {str(e)}")
 
 
 @app.get("/api/export/{session_id}")

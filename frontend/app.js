@@ -3,15 +3,15 @@ const API_BASE_URL = "http://localhost:8000/api";
 
 // Feature flags - Mirror backend feature flags
 // Students can enable/disable these features by changing the flags below
-const ENABLE_TOKEN_COUNTING = true; // Set to true to show token usage (Lesson 1.4, 1.7)
-const ENABLE_PROMPT_VERSION_TRACKING = true; // Set to true to show prompt versions (Lesson 2.5)
-const ENABLE_JSON_OUTPUT = true; // Set to true to enable JSON output format option (Lesson 3.2)
-const ENABLE_TEMPERATURE_CONTROL = true; // Set to true to enable temperature slider (Lesson 3.4)
-const ENABLE_PROMPT_CHAINING = true; // Set to true to enable prompt chaining workflow (Lesson 3.6)
-const ENABLE_CONVERSATION_EXPORT = true; // Set to true to enable conversation export (Lesson 4.7)
-const ENABLE_PROMPT_LIBRARY = true; // Set to true to enable prompt library features (Lesson 4.6)
-const ENABLE_FEEDBACK_EVALUATION = true; // Set to true to enable feedback evaluation (Lesson 4.1)
-const ENABLE_META_PROMPTING = true; // Set to true to enable meta-prompting endpoint (Lesson 4.3)
+// Change `False` to `True` to activate each feature
+const ENABLE_TOKEN_COUNTING = false; // Set to true to show token usage (Lesson 1.4, 1.7)
+const ENABLE_PROMPT_VERSION_TRACKING = false; // Set to true to show prompt versions (Lesson 2.5)
+const ENABLE_JSON_OUTPUT = false; // Set to true to enable JSON output format option (Lesson 3.2)
+const ENABLE_TEMPERATURE_CONTROL = false; // Set to true to enable temperature slider (Lesson 3.4)
+const ENABLE_PROMPT_CHAINING = false; // Set to true to enable prompt chaining workflow (Lesson 3.6)
+const ENABLE_CONVERSATION_EXPORT = false; // Set to true to enable conversation export (Lesson 4.7)
+const ENABLE_PROMPT_LIBRARY = false; // Set to true to enable prompt library features (Lesson 4.6)
+const ENABLE_FEEDBACK_EVALUATION = false; // Set to true to enable feedback evaluation (Lesson 4.1)
 
 // Chat state
 let conversationHistory = [];
@@ -107,6 +107,11 @@ function addAssistantMessage(
   const messageDiv = document.createElement("div");
   messageDiv.className = "message mb-3";
 
+  // Generate unique message ID for feedback tracking
+  const messageId = `msg-${Date.now()}-${Math.random()
+    .toString(36)
+    .substr(2, 9)}`;
+
   let metadataHtml = "";
 
   // Add token information if enabled
@@ -136,11 +141,27 @@ function addAssistantMessage(
         </div>`;
   }
 
+  // Add feedback buttons if enabled
+  let feedbackHtml = "";
+  if (ENABLE_FEEDBACK_EVALUATION) {
+    feedbackHtml = `
+      <div class="feedback-buttons mt-2">
+        <button type="button" class="btn btn-sm btn-outline-success me-2" onclick="submitFeedback('${messageId}', true)" title="This was helpful">
+          👍 Helpful
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="submitFeedback('${messageId}', false)" title="This was not helpful">
+          👎 Not Helpful
+        </button>
+      </div>
+    `;
+  }
+
   messageDiv.innerHTML = `
         <div class="d-flex justify-content-start">
-            <div class="message-bubble assistant-message">
+            <div class="message-bubble assistant-message" data-message-id="${messageId}">
                 <strong>${characterName}:</strong> ${formatMessage(message)}
                 ${metadataHtml}
+                ${feedbackHtml}
             </div>
         </div>
     `;
@@ -148,11 +169,12 @@ function addAssistantMessage(
 
   scrollToBottom();
 
-  // Add to conversation history
+  // Add to conversation history with message ID
   conversationHistory.push({
     role: "assistant",
     content: message,
     timestamp: new Date().toISOString(),
+    message_id: messageId,
   });
 }
 
@@ -459,11 +481,8 @@ function initializeUI() {
     }
   }
 
-  // Feedback evaluation buttons
-  if (ENABLE_FEEDBACK_EVALUATION) {
-    // This can be added as inline feedback buttons on messages
-    // For now, we'll just enable the feature flag
-  }
+  // Feedback evaluation is enabled in individual messages
+  // Feedback buttons are added to each assistant message when ENABLE_FEEDBACK_EVALUATION is true
 
   // Show the toggle button if we have any options
   toggleBtn = document.getElementById("advanced-options-toggle");
@@ -615,6 +634,74 @@ async function saveToLibrary() {
   } catch (error) {
     console.error("Save error:", error);
     addErrorMessage("Error saving to library");
+  }
+}
+
+// Submit feedback for a message
+async function submitFeedback(messageId, helpful) {
+  if (!ENABLE_FEEDBACK_EVALUATION) return;
+
+  // Optionally ask for text feedback
+  let textFeedback = null;
+  const feedbackText = window.prompt(
+    helpful
+      ? "Thanks! Any additional feedback? (optional)"
+      : "We're sorry it wasn't helpful. What can we improve? (optional)"
+  );
+  if (feedbackText && feedbackText.trim()) {
+    textFeedback = feedbackText.trim();
+  }
+
+  try {
+    const feedbackData = {
+      suggestion_id: messageId,
+      helpful: helpful,
+      feedback: textFeedback,
+      timestamp: new Date().toISOString(),
+    };
+
+    const response = await fetch(`${API_BASE_URL}/feedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(feedbackData),
+    });
+
+    if (response.ok) {
+      // Update button appearance to show feedback was submitted
+      const messageDiv = document.querySelector(
+        `[data-message-id="${messageId}"]`
+      );
+      if (messageDiv) {
+        const feedbackButtons = messageDiv.querySelector(".feedback-buttons");
+        if (feedbackButtons) {
+          feedbackButtons.innerHTML = `<span class="text-muted small">${
+            helpful ? "✓ Marked as helpful" : "✓ Marked as not helpful"
+          }</span>`;
+        }
+      }
+
+      // Show success message
+      const successMsg = document.createElement("div");
+      successMsg.className =
+        "alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3";
+      successMsg.style.zIndex = "9999";
+      successMsg.innerHTML = `
+        <strong>Thank you!</strong> Your feedback has been recorded.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.body.appendChild(successMsg);
+      setTimeout(() => successMsg.remove(), 3000);
+    } else {
+      const errorData = await response.json();
+      addErrorMessage(
+        errorData.detail || "Error submitting feedback. Please try again."
+      );
+    }
+  } catch (error) {
+    console.error("Feedback error:", error);
+    addErrorMessage("Error submitting feedback. Please try again.");
   }
 }
 
