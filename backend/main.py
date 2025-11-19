@@ -329,7 +329,7 @@ ENABLE_CONTEXT_WINDOW_MANAGEMENT = (
 # Change `False` to `True` to activate each feature
 ENABLE_DEFENSIVE_PROMPTING = True  # TODO: Lesson 4.2 - Activate enhanced defensive prompting (basic sanitization is always active)
 ENABLE_CONVERSATION_EXPORT = (
-    False  # TODO: Lesson 4.7 - Activate conversation export functionality
+    True  # TODO: Lesson 4.7 - Activate conversation export functionality
 )
 ENABLE_PROMPT_LIBRARY = True  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
 ENABLE_FEEDBACK_EVALUATION = (
