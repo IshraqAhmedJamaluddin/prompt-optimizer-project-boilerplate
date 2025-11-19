@@ -310,7 +310,7 @@ ENABLE_PROMPT_CHAINING = (
     True  # TODO: Lesson 3.6 - Activate multi-step prompt chaining workflow
 )
 ENABLE_CONTEXT_WINDOW_MANAGEMENT = (
-    False  # TODO: Lesson 3.8 - Activate context window management with summarization
+    True  # TODO: Lesson 3.8 - Activate context window management with summarization
 )
 
 # TODO: Feature flags for Module 4 - Business Applications & Optimization
