@@ -140,17 +140,17 @@ Once the backend is running, you can access:
 
 ### Module 3 - Advanced Techniques (Lesson 3.8: Project Extension)
 
-- [ ] Refine system prompt structure: separate identity, expertise, and behavior sections
+- [x] Refine system prompt structure: separate identity, expertise, and behavior sections
   - **Activate**: Reorganize `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` into clear sections
-- [ ] Add structured output option: Prompt Critic can return JSON-formatted suggestions
+- [x] Add structured output option: Prompt Critic can return JSON-formatted suggestions
   - **Activate**: Change `ENABLE_JSON_OUTPUT = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Implement temperature control: allow users to adjust feedback style (creative vs precise)
+- [x] Implement temperature control: allow users to adjust feedback style (creative vs precise)
   - **Activate**: Change `ENABLE_TEMPERATURE_CONTROL = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Add reasoning strategies: Prompt Critic uses step-by-step or ReAct for complex analysis
+- [x] Add reasoning strategies: Prompt Critic uses step-by-step or ReAct for complex analysis
   - **Activate**: Update `PROMPT_CRITIC_SYSTEM_PROMPT` in `backend/main.py` to include reasoning strategy instructions
-- [ ] Create prompt chaining: multi-step optimization workflow (analyze → suggest → refine → final)
+- [x] Create prompt chaining: multi-step optimization workflow (analyze → suggest → refine → final)
   - **Activate**: Change `ENABLE_PROMPT_CHAINING = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Implement context window management: summarize old messages when conversation gets long
+- [x] Implement context window management: summarize old messages when conversation gets long
   - **Activate**: Change `ENABLE_CONTEXT_WINDOW_MANAGEMENT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ### Module 4 - Business Applications & Optimization (Lesson 4.7: Project Extension)
