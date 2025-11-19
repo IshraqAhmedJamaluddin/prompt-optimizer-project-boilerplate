@@ -116,7 +116,7 @@ Once the backend is running, you can access:
 
 ### Module 1 - Setup & Foundation
 
-- [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise (Lesson 1.1-1.6)
+- [ ] Create comprehensive Prompt Critic system prompt (500+ tokens) with character identity and course expertise (Lesson 1.6)
 - [ ] Enhance conversation history to maintain context across messages (Lesson 1.3)
 - [ ] Add token counting to track usage and prevent context window overflow (Lesson 1.4, 1.7)
 - [ ] Configure additional LLM providers (DeepSeek, OpenRouter) as alternatives to Gemini (Lesson 1.7)
