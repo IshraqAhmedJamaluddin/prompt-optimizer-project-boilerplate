@@ -155,13 +155,13 @@ Once the backend is running, you can access:
 
 ### Module 4 - Business Applications & Optimization (Lesson 4.7: Project Extension)
 
-- [ ] Add defensive prompting: protect system prompt from injection attacks
+- [x] Add defensive prompting: protect system prompt from injection attacks
   - **Activate**: Change `ENABLE_DEFENSIVE_PROMPTING = False` to `True` in `backend/main.py` (basic sanitization is always active)
-- [ ] Add feedback evaluation: track which suggestions users find most helpful
+- [x] Add feedback evaluation: track which suggestions users find most helpful
   - **Activate**: Change `ENABLE_FEEDBACK_EVALUATION = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Create prompt library: save and organize optimized prompts with tags/categories using SQLite
+- [x] Create prompt library: save and organize optimized prompts with tags/categories using SQLite
   - **Activate**: Change `ENABLE_PROMPT_LIBRARY = False` to `True` in both `backend/main.py` and `frontend/app.js`
-- [ ] Add conversation export: save chat history as markdown or JSON
+- [x] Add conversation export: save chat history as markdown or JSON
   - **Activate**: Change `ENABLE_CONVERSATION_EXPORT = False` to `True` in both `backend/main.py` and `frontend/app.js`
 
 ## Suggested Features (Optional Enhancements)
