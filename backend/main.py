@@ -258,7 +258,7 @@ ENABLE_ADDITIONAL_PROVIDERS = (
 )
 
 # TODO: Feature flags for Module 2 - Frameworks & Best Practices
-ENABLE_PROMPT_VERSION_TRACKING = False  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
+ENABLE_PROMPT_VERSION_TRACKING = True  # TODO: Lesson 2.5 - Activate iterative refinement and prompt version tracking
 
 # TODO: Feature flags for Module 3 - Advanced Techniques
 ENABLE_JSON_OUTPUT = False  # TODO: Lesson 3.2 - Activate structured JSON output option
