@@ -69,6 +69,8 @@ app.add_middleware(
 #
 # The prompt should be 500+ tokens and demonstrate advanced prompt engineering techniques.
 # Look at the solutions branch for a complete example.
+# NOTE: When using code blocks (```) in triple-quoted strings, do NOT escape backticks.
+# Use ``` directly, not \`\`\` (which causes SyntaxWarning: invalid escape sequence).
 PROMPT_CRITIC_SYSTEM_PROMPT = ""
 
 # In-memory storage (in production, use a database)
