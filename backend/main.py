@@ -130,7 +130,7 @@ RATE_LIMIT_WINDOW = 60  # seconds
 # TODO: Feature flags for Module 1 - Setup & Foundation
 # Students should activate these features as they progress through Module 1
 # Change `False` to `True` to activate each feature
-ENABLE_CONVERSATION_HISTORY = False  # TODO: Lesson 1.3 - Activate conversation history to maintain context across messages
+ENABLE_CONVERSATION_HISTORY = True  # TODO: Lesson 1.3 - Activate conversation history to maintain context across messages
 ENABLE_TOKEN_COUNTING = (
     False  # TODO: Lesson 1.4, 1.7 - Activate token counting and context window tracking
 )
