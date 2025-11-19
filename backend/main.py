@@ -11,6 +11,7 @@ import os
 import re
 import time
 from collections import defaultdict
+from contextlib import asynccontextmanager
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
@@ -35,13 +36,17 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-app = FastAPI(title="Prompt Helper Chat API", version="2.0.0")
 
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for startup and shutdown"""
+    # Startup
     await init_db()
+    yield
+    # Shutdown (if needed in the future)
+
+
+app = FastAPI(title="Prompt Helper Chat API", version="2.0.0", lifespan=lifespan)
 
 
 # CORS middleware for frontend communication
@@ -746,7 +751,7 @@ async def get_conversation_history(session_id: str):
 
 @app.get("/api/export/{session_id}")
 async def export_conversation(
-    session_id: str, format: str = Query("markdown", regex="^(markdown|json)$")
+    session_id: str, format: str = Query("markdown", pattern="^(markdown|json)$")
 ):
     """
     TODO: Lesson 4.7 - Export conversation history as markdown or JSON
