@@ -331,7 +331,7 @@ ENABLE_DEFENSIVE_PROMPTING = True  # TODO: Lesson 4.2 - Activate enhanced defens
 ENABLE_CONVERSATION_EXPORT = (
     False  # TODO: Lesson 4.7 - Activate conversation export functionality
 )
-ENABLE_PROMPT_LIBRARY = False  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
+ENABLE_PROMPT_LIBRARY = True  # TODO: Lesson 4.6 - Activate prompt library for saving and organizing prompts
 ENABLE_FEEDBACK_EVALUATION = (
     True  # TODO: Lesson 4.1 - Activate feedback evaluation tracking
 )
