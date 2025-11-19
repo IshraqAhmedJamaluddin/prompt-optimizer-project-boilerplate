@@ -634,9 +634,29 @@ def apply_reasoning_strategy(
 ) -> str:
     """Apply reasoning strategy to system prompt"""
     if reasoning_strategy == ReasoningStrategy.STEP_BY_STEP:
-        return f"{system_prompt}\n\nWhen analyzing prompts, always explain your reasoning step-by-step. Break down your analysis into clear steps: 1) Understanding the prompt, 2) Identifying issues, 3) Suggesting improvements, 4) Providing examples."
+        return f"""{system_prompt}
+
+## Analysis Approach (Step-by-Step)
+When analyzing prompts, always use chain-of-thought reasoning:
+1. **Understanding**: First, identify what the prompt is trying to achieve
+2. **Analysis**: Break down each component (instruction, context, format, tone)
+3. **Evaluation**: Identify specific strengths and weaknesses
+4. **Improvement**: Provide concrete suggestions with explanations
+
+Always explain your reasoning step-by-step before giving feedback."""
     elif reasoning_strategy == ReasoningStrategy.REACT:
-        return f"{system_prompt}\n\nUse the ReAct (Reasoning + Acting) approach: Think through the problem, analyze the prompt, then provide actionable suggestions. Format your response as: Thought: [your analysis], Action: [your suggestion], Observation: [expected outcome]."
+        return f"""{system_prompt}
+
+## Analysis Approach (ReAct)
+Use the ReAct (Reasoning + Acting) methodology:
+- **Thought**: Analyze the prompt structure, identify issues, and understand user intent
+- **Action**: Provide specific, actionable improvements
+- **Observation**: Explain the expected outcome of applying the suggestions
+
+Format your feedback using this structure:
+Thought: [your analysis]
+Action: [your suggestion]
+Observation: [expected outcome]"""
     else:
         return system_prompt
 
