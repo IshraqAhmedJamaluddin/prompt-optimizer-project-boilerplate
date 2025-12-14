@@ -560,7 +560,11 @@ async def chat(request: ChatRequest):
 
     # TODO: Lesson 4.2 - Defensive prompting (basic sanitization always active)
     # Enhanced defensive prompting can be activated by setting ENABLE_DEFENSIVE_PROMPTING = True
-    user_message = sanitize_input(request.message.strip())
+    # Sanitize user input only when ENABLE_DEFENSIVE_PROMPTING is True
+    if ENABLE_DEFENSIVE_PROMPTING:
+        user_message = sanitize_input(request.message.strip())
+    else:
+        user_message = request.message.strip()
     # Additional defensive measures can be added here when ENABLE_DEFENSIVE_PROMPTING is True
 
     if not user_message:
