@@ -579,17 +579,15 @@ async def chat(request: ChatRequest):
         conversation_sessions[session_id] = []
 
     # TODO: Lesson 1.3 - Enhanced conversation history
-    # Basic history is always active for core functionality
-    # Enhanced tracking maintains context across messages
-    session_messages = conversation_sessions[session_id]
+    # When False: Only uses conversation history explicitly provided by frontend
+    # When True: Automatically loads session messages + provided conversation history
     if ENABLE_CONVERSATION_HISTORY:
+        # Auto-load session messages from backend storage
+        session_messages = conversation_sessions[session_id]
         messages.extend(session_messages[-20:])  # Last 20 messages
-    else:
-        # Basic: only use provided conversation history
-        pass
 
-    # Add provided conversation history (always active)
-    if request.conversation_history:
+    # Add provided conversation history from frontend request
+    if ENABLE_CONVERSATION_HISTORY and request.conversation_history:
         for msg in request.conversation_history[-10:]:
             messages.append({"role": msg.role, "content": msg.content})
 
@@ -657,12 +655,13 @@ async def chat(request: ChatRequest):
         # Update session (always active for basic functionality)
         # TODO: Lesson 1.3 - Enhanced conversation history tracking
         # When ENABLE_CONVERSATION_HISTORY is True, maintains full context across messages
-        conversation_sessions[session_id].append(
-            {"role": "user", "content": user_message}
-        )
-        conversation_sessions[session_id].append(
-            {"role": "assistant", "content": response_text}
-        )
+        if ENABLE_CONVERSATION_HISTORY:
+            conversation_sessions[session_id].append(
+                {"role": "user", "content": user_message}
+            )
+            conversation_sessions[session_id].append(
+                {"role": "assistant", "content": response_text}
+            )
 
         # TODO: Lesson 3.2 - Handle JSON output format
         # Activate by setting ENABLE_JSON_OUTPUT = True
